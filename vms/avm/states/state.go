@@ -596,7 +596,9 @@ func (s *state) rejectedTxs() ([]ids.ID, error) {
 			}
 			txIDs = append(txIDs, txID)
 			// remove txID from dbStatus
-			database.ClearPrefix(s.statusDB, s.statusDB, key)
+			if err := database.ClearPrefix(s.statusDB, s.statusDB, key); err != nil {
+				return []ids.ID{}, err
+			}
 		}
 	}
 	return txIDs, nil
@@ -613,10 +615,12 @@ func (s *state) RemoveRejectedTxs() error {
 			return err
 		}
 		// find UTXOID produced by the tx
-		UTXOs := tx.UTXOs()
+		utxos := tx.UTXOs()
 		// update utxoDB and utxoState accordingly
-		for _, UTXO := range UTXOs {
-			s.utxoState.DeleteUTXO(UTXO.InputID())
+		for _, UTXO := range utxos {
+			if err := s.utxoState.DeleteUTXO(UTXO.InputID()); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
