@@ -14,6 +14,6 @@ func AvailableBytes(storagePath string) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-	avail := stat.Bavail * uint64(stat.Bsize)
+	avail := uint64(stat.Bavail) * uint64(stat.Bsize)
 	return avail, nil
 }
